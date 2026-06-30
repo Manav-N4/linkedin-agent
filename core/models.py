@@ -1,10 +1,9 @@
-from typing import Literal
 # pyrefly: ignore [missing-import]
 from pydantic import BaseModel, ValidationError
 
 class OrchestratorOutput(BaseModel):
-    domain: Literal["solo_travel", "luxury_travel", "experience_based", "community_driven"]
-    angle: Literal["story_driven", "contrarian", "practical_guide", "aspirational"]
+    domain: str
+    angle: str
     reasoning: str
 
 if __name__ == "__main__":
