@@ -1,10 +1,26 @@
 from dotenv import load_dotenv
 import os
 import requests 
-# pyrefly: ignore [missing-import]
 from bs4 import BeautifulSoup
+from sentence_transformers import SentenceTransformer
+import chromadb
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
+client = chromadb.Client()
+collection = client.get_or_create_collection("research")
+
 SKIP_DOMAINS = ["instagram.com", "facebook.com", "reddit.com", "youtube.com", "twitter.com"]
 load_dotenv()
+def embed_and_store(text: str, url: str) -> None:
+    words = text.split()
+    chunks = [" ".join(words[i:i+200]) for i in range(0, len(words), 200)]
+    embeddings = model.encode(chunks)
+    collection.add(
+        documents = chunks,
+        embeddings = embeddings.tolist(),
+        ids = [f"{url}_chunk_{i}" for i in range(len(chunks))]
+    )
+
 def search_web(query:str) -> list[dict]:
     url = "https://google.serper.dev/search"
     api_key = os.getenv("SERPER_API_KEY")
@@ -32,9 +48,7 @@ def scrape_page(url:str) -> str:
         return ""
     soup = BeautifulSoup(response.text, "html.parser")
     if response:
-        paras = soup.find_all("p")
-        print(f"Found {len(paras)} paragraphs")  # add this
-        print(response.status_code)              # and this
+        paras = soup.find_all("p")          
         return " ".join([p.get_text() for p in paras])
     else:
         return ""
@@ -44,5 +58,6 @@ if __name__ == "__main__":
         if is_scrapeable(result["link"]):
             text = scrape_page(result["link"])
             if text:
-                print(text[:500])
+                print(embed_and_store(text, result["link"]))
+                print(collection.count())
                 break
