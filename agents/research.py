@@ -52,6 +52,16 @@ def scrape_page(url:str) -> str:
         return " ".join([p.get_text() for p in paras])
     else:
         return ""
+def query_research(topic: str, n_results: int = 3) -> list[str]:
+    # step 1: encode the topic into a query vector
+    query = model.encode([topic]).tolist() 
+    # step 2: make sure n_results doesn't exceed collection.count()
+    if n_results > collection.count():
+        n_results = min(n_results, collection.count()) 
+    # step 3: query the collection with the vector
+    res = collection.query(query_embeddings=query, n_results=n_results)
+    # step 4: return the documents from the result
+    return res["documents"][0]
 if __name__ == "__main__":
     results = search_web("solo travel tips 2026")
     for result in results:
@@ -61,3 +71,4 @@ if __name__ == "__main__":
                 print(embed_and_store(text, result["link"]))
                 print(collection.count())
                 break
+    print(query_research("packing tips for solo travel"))
