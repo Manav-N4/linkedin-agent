@@ -106,6 +106,8 @@ Remember:
 - 5 hooks, one per format, in the fixed order.
 - Hooks must be sharp, specific, and clearly connected to the brief.
 - Output must be ONLY a JSON list of 5 strings, no surrounding text.
+
+CRITICAL: You MUST return exactly 5 strings. No more, no less. If you cannot generate one format, still include a placeholder string for that slot.
 '''
 def generate_hooks(brief: ContentBrief) -> list[str]:
     brief_dict = brief.model_dump()
