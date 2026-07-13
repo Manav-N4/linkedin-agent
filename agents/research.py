@@ -62,13 +62,18 @@ def query_research(topic: str, n_results: int = 3) -> list[str]:
     res = collection.query(query_embeddings=query, n_results=n_results)
     # step 4: return the documents from the result
     return res["documents"][0]
-if __name__ == "__main__":
-    results = search_web("solo travel tips 2026")
+def research_agent(topic: str) -> list[str]:
+    results = search_web(topic)
+    pages_scraped = 0
     for result in results:
         if is_scrapeable(result["link"]):
             text = scrape_page(result["link"])
             if text:
-                print(embed_and_store(text, result["link"]))
-                print(collection.count())
-                break
-    print(query_research("packing tips for solo travel"))
+                embed_and_store(text, result["link"])
+                pages_scraped += 1
+                if pages_scraped == 3:
+                    break
+    return query_research(topic)
+if __name__ == "__main__":
+    res = research_agent("solo travel")
+    print(res)
