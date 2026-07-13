@@ -1,8 +1,10 @@
+
 import json
 from core.llm import call_llm
 from core.models import OrchestratorOutput
 from core.utils import clean_topic
 from pydantic import ValidationError
+import re
 
 SYSTEM_PROMPT = """
 You are a professional-grade orchestrator agent for WanderMesh (solo travel, luxury travel, travel beyond sight‑seeing, community driven travel, experience‑based travel). Your job is to analyze the given [TOPIC] and classify it precisely using two separate axes: a travel domain and a content format, then pick the single best content angle and give a short transparent reasoning.
@@ -20,11 +22,14 @@ One example (few-shot): {"domain":"experience_based","content_type":"story","ang
 def strip_json_fences(raw:str) -> str:
     raw = raw.strip()
     if raw.startswith("```json"):
-        raw = raw.removeprefix("```json")
-        raw = raw.removesuffix("```")
-    if raw.startswith("```"):
-        raw = raw.removeprefix("```")
-        raw = raw.removesuffix("```")
+        raw = raw.removeprefix("```json").strip()
+    elif raw.startswith("```"):
+        raw = raw.removeprefix("```").strip()
+    if raw.endswith("```"):
+        raw = raw.removesuffix("```").strip()
+    raw = re.sub(r',\s*]', ']', raw)
+    raw = re.sub(r',\s*}', '}', raw)
+
     return raw
 def classify_topic(topic:str) -> OrchestratorOutput|None:
     cleaned_topic = clean_topic(topic)

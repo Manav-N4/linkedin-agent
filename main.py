@@ -35,8 +35,8 @@ def main(topic):
         return
     print("Generating 5 Hooks...")
     hooks = generate_hooks(brief)
-    if len(hooks) == 0:
-        print("Failed to generate hooks")
+    if len(hooks) < 3:
+        print("Failed to generate enough hooks")
         return
     print(hooks)
     print("Generating 2 drafts...")
