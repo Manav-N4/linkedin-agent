@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 import chromadb
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
-client = chromadb.Client()
+client = chromadb.PersistentClient()
 collection = client.get_or_create_collection("research")
 
 SKIP_DOMAINS = ["instagram.com", "facebook.com", "reddit.com", "youtube.com", "twitter.com"]

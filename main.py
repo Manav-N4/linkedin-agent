@@ -14,22 +14,22 @@ def main(topic):
         print("Failed to classify topic")
         return
     print("Researching...")
-    research = research_agent(topic)
+    research = research_agent(classified_topic)
     if len(research) == 0:
         print("Failed to research")
         return
     print("Fetching suitable examples...")
-    examples = get_examples(topic, research)
+    examples = get_examples(classified_topic, research)
     if len(examples) == 0:
         print("Failed to fetch examples")
         return
     print("Flagging mistakes...")
-    critic = be_critique(topic, research, examples)
+    critic = be_critique(classified_topic, research, examples)
     if len(critic) == 0:
         print("Failed to flag mistakes")
         return
     print("Creating a brief...")
-    brief = create_brief(topic, research, examples, critic)
+    brief = create_brief(classified_topic, research, examples, critic)
     if brief is None:
         print("Failed to create brief")
         return
