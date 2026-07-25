@@ -29,7 +29,8 @@ def strip_json_fences(raw:str) -> str:
         raw = raw.removesuffix("```").strip()
     raw = re.sub(r',\s*]', ']', raw)
     raw = re.sub(r',\s*}', '}', raw)
-
+    raw = raw.replace('\u201c', '\\"').replace('\u201d', '\\"')
+    raw = raw.replace('\u2018', "'").replace('\u2019', "'")
     return raw
 def classify_topic(topic:str) -> OrchestratorOutput|None:
     cleaned_topic = clean_topic(topic)
