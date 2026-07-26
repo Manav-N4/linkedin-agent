@@ -81,8 +81,6 @@ POST /generate Body: { "topic": "Your Topic" } Returns: { "hooks": [...],
 
 ## Project structure
 
-## Project structure
-
 linkedin-agent/
 ├── agents/
 │   ├── orchestrator.py        # classifies topic into domain, content type, angle
