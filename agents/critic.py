@@ -54,6 +54,3 @@ def be_critique(topic:str, research_chunks: list[str], example: list[str]) -> li
         print(raw_response)
         return []
     return parsed
-
-if __name__ == "__main__":
-    print(be_critique("Luxury travel", ["Luxury travel is good", "80% people prefer luxury travel"], ['Over 80% of respondents in a recent survey indicated their preference for luxurious travel experiences.', 'G Adventures, a leading provider of luxury travel experiences, reports that demand for high-quality service and customized itineraries is rapidly increasing, with an estimated 80% of their travelers opting for premium options.', 'A study conducted by Expedia revealed that 80% of travelers who are willing to spend more on their vacation are looking for luxury hotels or resorts.']))

@@ -62,6 +62,3 @@ def get_examples(topic: str, research_chunks: list[str]) -> list[str]:
         print(raw_response)
         return []
     return parsed
-
-if __name__ == "__main__":
-    print(get_examples("Luxury travel", ["Luxury travel is good", "80% people prefer luxury travel"]))

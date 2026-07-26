@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 import chromadb
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
-client = chromadb.PersistentClient()
+client = chromadb.PersistentClient(path="data/chroma")
 collection = client.get_or_create_collection("research")
 
 SKIP_DOMAINS = ["instagram.com", "facebook.com", "reddit.com", "youtube.com", "twitter.com"]
@@ -74,6 +74,3 @@ def research_agent(topic: str) -> list[str]:
                 if pages_scraped == 3:
                     break
     return query_research(topic)
-if __name__ == "__main__":
-    res = research_agent("solo travel")
-    print(res)

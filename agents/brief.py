@@ -101,8 +101,3 @@ def create_brief(topic:str, research_chunks: list[str], example: list[str], crit
         print("LLM returned JSON but it doesn't match expected structure:")
         print(e)
         return None
-
-if __name__ == "__main__":
-    print(create_brief("Luxury travel", ["Luxury travel is good", "80% people prefer luxury travel"], ['Over 80% of respondents in a recent survey indicated their preference for luxurious travel experiences.', 'G Adventures, a leading provider of luxury travel experiences, reports that demand for high-quality service and customized itineraries is rapidly increasing, with an estimated 80% of their travelers opting for premium options.', 'A study conducted by Expedia revealed that 80% of travelers who are willing to spend more on their vacation are looking for luxury hotels or resorts.'], ["The claim that luxury travel is 'good' lacks specific criteria for what constitutes good, making the statement subjective and unsupported by research.", 'While the cited statistics (80%) show a preference for luxury travel, these numbers do not specify what factors drive this preference or indicate the quality of these experiences.', "The Examples rely on a single source (Expedia) without mentioning their methodology. A critical reader would wonder how Expedia's definition of 'luxury' aligns with the broader context of travel and what constitutes luxury for different individuals."]))
-
-

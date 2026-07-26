@@ -115,14 +115,3 @@ def rate_drafts(hooks: list[str], drafts: list[str]) -> dict|None:
         print(raw_response)
         return None
     return parsed
-
-if __name__ == "__main__":
-    brief = create_brief("Luxury travel", ["Luxury travel is good", "80% people prefer luxury travel"], ['Over 80% of respondents in a recent survey indicated their preference for luxurious travel experiences.', 'G Adventures, a leading provider of luxury travel experiences, reports that demand for high-quality service and customized itineraries is rapidly increasing, with an estimated 80% of their travelers opting for premium options.', 'A study conducted by Expedia revealed that 80% of travelers who are willing to spend more on their vacation are looking for luxury hotels or resorts.'], ["The claim that luxury travel is 'good' lacks specific criteria for what constitutes good, making the statement subjective and unsupported by research.", 'While the cited statistics (80%) show a preference for luxury travel, these numbers do not specify what factors drive this preference or indicate the quality of these experiences.', "The Examples rely on a single source (Expedia) without mentioning their methodology. A critical reader would wonder how Expedia's definition of 'luxury' aligns with the broader context of travel and what constitutes luxury for different individuals."])
-    if brief is None:
-        print("Brief generation failed")
-    else:
-        hooks = generate_hooks(brief)
-        if hooks:
-            drafts = generate_drafts(hooks, brief)
-            if drafts:
-                print(rate_drafts(hooks, drafts))

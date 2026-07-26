@@ -48,8 +48,3 @@ def classify_topic(topic:str) -> OrchestratorOutput|None:
         print("LLM returned JSON but it doesn't match expected structure:")
         print(e)
         return None
-
-if __name__ == "__main__":
-    print(classify_topic("Why experience based travel is better than the typical sight seeing travel?"))
-    print(classify_topic("Community driven travel is underated"))
-    print(classify_topic("Luxury Travel made affordable with WanderMesh"))
