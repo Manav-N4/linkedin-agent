@@ -81,19 +81,28 @@ POST /generate Body: { "topic": "Your Topic" } Returns: { "hooks": [...],
 
 ## Project structure
 
-linkedin-agent/ ├── agents/ │ ├── orchestrator.py # classifies topic into
-domain, content type, angle │ ├── research.py # web search, scraping, embedding,
-RAG retrieval │ ├── examples.py # finds real-world examples supporting the topic
-│ ├── critic.py # flags weaknesses in research and examples │ ├── brief.py #
-synthesises everything into a content brief │ ├── hook.py # generates 5 hooks
-across different formats │ ├── draft.py # writes 2 full post drafts in different
-tones │ └── writing_critic.py # scores drafts on originality, fulfilment,
-shareability ├── core/ │ ├── llm.py # Ollama wrapper — single call_llm function
-│ ├── models.py # Pydantic models for structured agent outputs │ └── utils.py #
-shared utilities — clean_topic, strip_json_fences ├── data/ │ └── chroma/ #
-persistent ChromaDB storage (gitignored) ├── main.py # CLI entry point — runs
-the full pipeline ├── api.py # FastAPI server — POST /generate endpoint ├──
-requirements.txt # all dependencies └── .env # SERPER_API_KEY (gitignored)
+## Project structure
+
+linkedin-agent/
+├── agents/
+│   ├── orchestrator.py        # classifies topic into domain, content type, angle
+│   ├── research.py            # web search, scraping, embedding, RAG retrieval
+│   ├── examples.py            # finds real-world examples supporting the topic
+│   ├── critic.py              # flags weaknesses in research and examples
+│   ├── brief.py               # synthesises everything into a content brief
+│   ├── hook.py                # generates 5 hooks across different formats
+│   ├── draft.py               # writes 2 full post drafts in different tones
+│   └── writing_critic.py      # scores drafts on originality, fulfilment, shareability
+├── core/
+│   ├── llm.py                 # Ollama wrapper — single call_llm function
+│   ├── models.py              # Pydantic models for structured agent outputs
+│   └── utils.py               # shared utilities — clean_topic, strip_json_fences
+├── data/
+│   └── chroma/                # persistent ChromaDB storage (gitignored)
+├── main.py                    # CLI entry point — runs the full pipeline
+├── api.py                     # FastAPI server — POST /generate endpoint
+├── requirements.txt           # all dependencies
+└── .env                       # SERPER_API_KEY (gitignored)
 
 ## Status
 
