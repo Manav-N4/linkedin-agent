@@ -41,16 +41,17 @@ Goal:
 - Help downstream agents by surfacing the sharpest, most important issues with the current research and examples, so that those agents can decide what to change. You only flag; you never fix.
 '''
 
-def be_critique(topic:str, research_chunks: list[str], example: list[str]) -> list[str]:
+def be_critique(topic:str, research_chunks: list[str], example: list[str], max_retries = 3) -> list[str]:
     cleaned_topic = clean_topic(topic)
     user_message = f"TOPIC: {cleaned_topic}\n\nRESEARCH_CHUNKS:\n" + "\n---\n".join(research_chunks)
     user_message2 = f"{user_message}\n\nExamples:\n" + "\n---\n".join(example)
-    raw_response = call_llm(SYSTEM_PROMPT, user_message2)
-    refined_response = strip_json_fences(raw_response)
-    try:
-        parsed = json.loads(refined_response)
-    except json.JSONDecodeError:
-        print("LLM did not return valid JSON:")
-        print(raw_response)
-        return []
-    return parsed
+    for attempt in range(max_retries):
+        raw_response = call_llm(SYSTEM_PROMPT, user_message2)
+        refined = strip_json_fences(raw_response)
+        try:
+            parsed = json.loads(refined)
+            if len(parsed) > 0:
+                return parsed
+        except json.JSONDecodeError:
+            print(f"Critic attempt {attempt + 1} failed, retrying...")
+    return []

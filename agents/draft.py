@@ -68,19 +68,20 @@ Example of valid output SHAPE (do not copy content, this is just to show format)
   "Draft B full text starting with the same chosen hook...\n\nSecond paragraph of the story...\nClosing lesson..."
 ]
 '''
-def generate_drafts(hooks: list[str], brief: ContentBrief) -> list[str]:
+def generate_drafts(hooks: list[str], brief: ContentBrief, max_retries = 3) -> list[str]:
     brief_dict = brief.model_dump()
     user_message = (
         "\n".join([f"{key}:{value}" for key, value in brief_dict.items()]) 
         + "\n\nHOOKS:\n"
         + "\n---\n".join(hooks)
     )
-    raw_response = call_llm(SYSTEM_PROMPT, user_message)
-    refined_response = strip_json_fences(raw_response)
-    try:
-        parsed = json.loads(refined_response)
-    except json.JSONDecodeError as e:
-        print("LLM did not return valid JSON:")
-        print(raw_response)
-        return []
-    return parsed
+    for attempt in range(max_retries):
+        raw_response = call_llm(SYSTEM_PROMPT, user_message)
+        refined = strip_json_fences(raw_response)
+        try:
+            parsed = json.loads(refined)
+            if len(parsed) == 2:
+                return parsed
+        except json.JSONDecodeError:
+            print(f"Draft attempt {attempt + 1} failed, retrying...")
+    return []
