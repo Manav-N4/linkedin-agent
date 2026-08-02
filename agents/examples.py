@@ -48,17 +48,16 @@ Goal:
 - Help the user by producing three sharp, memorable, real-world examples that a human could quickly reuse in writing, presentations, or teaching to support the TOPIC.
 '''
 
-def get_examples(topic: str, research_chunks: list[str]) -> list[str]:
+def get_examples(topic: str, research_chunks: list[str], max_retries = 3) -> list[str]:
     cleaned_topic = clean_topic(topic)
     user_message = f"TOPIC: {cleaned_topic}\n\nRESEARCH_CHUNKS:\n" + "\n---\n".join(research_chunks)
-    raw_response = call_llm(SYSTEM_PROMPT, user_message)
-    print(f"RAW: {repr(raw_response)}")  # add this
-    refined_response = strip_json_fences(raw_response)
-    print(f"REFINED: {repr(refined_response)}")
-    try:
-        parsed = json.loads(refined_response)
-    except json.JSONDecodeError:
-        print("LLM did not return valid JSON:")
-        print(raw_response)
-        return []
-    return parsed
+    for attempt in range(max_retries):
+        raw_response = call_llm(SYSTEM_PROMPT, user_message)
+        refined = strip_json_fences(raw_response)
+        try:
+            parsed = json.loads(refined)
+            if len(parsed) > 0:
+                return parsed
+        except json.JSONDecodeError:
+            print(f"Example attempt {attempt + 1} failed, retrying...")
+    return []

@@ -109,15 +109,16 @@ Remember:
 
 CRITICAL: You MUST return exactly 5 strings. No more, no less. If you cannot generate one format, still include a placeholder string for that slot.
 '''
-def generate_hooks(brief: ContentBrief) -> list[str]:
+def generate_hooks(brief: ContentBrief, max_retries = 3) -> list[str]:
     brief_dict = brief.model_dump()
     user_message = "\n".join([f"{key}:{value}" for key, value in brief_dict.items()])
-    raw_response = call_llm(SYSTEM_PROMPT, user_message)
-    refined_response = strip_json_fences(raw_response)
-    try:
-        parsed = json.loads(refined_response)
-    except json.JSONDecodeError as e:
-        print("LLM did not return valid JSON:")
-        print(raw_response)
-        return []
-    return parsed
+    for attempt in range(max_retries):
+        raw_response = call_llm(SYSTEM_PROMPT, user_message)
+        refined = strip_json_fences(raw_response)
+        try:
+            parsed = json.loads(refined)
+            if len(parsed) == 5:
+                return parsed
+        except json.JSONDecodeError:
+            print(f"Hook attempt {attempt + 1} failed, retrying...")
+    return []
