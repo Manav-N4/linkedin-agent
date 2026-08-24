@@ -4,6 +4,7 @@ from agents.brief import create_brief
 from agents.hook import generate_hooks
 from core.llm import call_llm
 from agents.orchestrator import strip_json_fences
+from agents.profile_extractor import BrandProfile
 SYSTEM_PROMPT = '''
 You are a LinkedIn draft-writing agent. Your job is to write complete LinkedIn posts, not hooks and not outlines.
 You will always receive:
@@ -67,21 +68,29 @@ Example of valid output SHAPE (do not copy content, this is just to show format)
   "Draft A full text starting with the chosen hook...\n\nSecond paragraph...\nThird paragraph...",
   "Draft B full text starting with the same chosen hook...\n\nSecond paragraph of the story...\nClosing lesson..."
 ]
+If a BRAND PROFILE is provided below, ensure both drafts reflect that brand's voice, tone, and core values throughout. Do NOT ignore brand context if present.
 '''
-def generate_drafts(hooks: list[str], brief: ContentBrief, max_retries = 3) -> list[str]:
+def generate_drafts(hooks: list[str], brief: ContentBrief, brand_profile: BrandProfile = None, max_retries = 3) -> list[str]:
     brief_dict = brief.model_dump()
     user_message = (
         "\n".join([f"{key}:{value}" for key, value in brief_dict.items()]) 
         + "\n\nHOOKS:\n"
         + "\n---\n".join(hooks)
     )
+    if brand_profile:
+        brand_context = f"\n\nBRAND PROFILE:\nVoice: {brand_profile.voice}\nKey Pillars: {', '.join(brand_profile.key_pillars)}\nTone Examples: {', '.join(brand_profile.tone_examples)}"
+        user_message += brand_context
     for attempt in range(max_retries):
         raw_response = call_llm(SYSTEM_PROMPT, user_message)
         refined = strip_json_fences(raw_response)
         try:
             parsed = json.loads(refined)
-            if len(parsed) == 2:
+            if isinstance(parsed, list) and len(parsed) == 2 and all(isinstance(s, str) for s in parsed):
                 return parsed
-        except json.JSONDecodeError:
-            print(f"Draft attempt {attempt + 1} failed, retrying...")
+            else:
+                num_items = len(parsed) if isinstance(parsed, list) else type(parsed).__name__
+                print(f"Draft attempt {attempt + 1}: got {num_items} items, expected 2. Retrying...")
+        except json.JSONDecodeError as e:
+            print(f"Draft attempt {attempt + 1} failed: {e}")
+            print(f"RAW RESPONSE: {raw_response}")
     return []

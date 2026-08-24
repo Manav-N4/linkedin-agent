@@ -3,6 +3,7 @@ from agents.brief import create_brief
 import json
 from core.llm import call_llm
 from agents.orchestrator import strip_json_fences
+from agents.profile_extractor import BrandProfile
 SYSTEM_PROMPT = '''
 You are a hook-writing agent for LinkedIn posts. Your only job is to generate short, scroll-stopping opening lines (“hooks”), not full posts.
 
@@ -108,17 +109,25 @@ Remember:
 - Output must be ONLY a JSON list of 5 strings, no surrounding text.
 
 CRITICAL: You MUST return exactly 5 strings. No more, no less. If you cannot generate one format, still include a placeholder string for that slot.
+If a BRAND PROFILE is provided below, ensure all hooks reflect that brand's voice, tone, and core values. Do NOT ignore brand context if present.
 '''
-def generate_hooks(brief: ContentBrief, max_retries = 3) -> list[str]:
+def generate_hooks(brief: ContentBrief, brand_profile: BrandProfile = None, max_retries = 3) -> list[str]:
     brief_dict = brief.model_dump()
     user_message = "\n".join([f"{key}:{value}" for key, value in brief_dict.items()])
+    if brand_profile:
+        brand_context = f"\n\nBRAND PROFILE:\nVoice: {brand_profile.voice}\nKey Pillars: {', '.join(brand_profile.key_pillars)}\nTone Examples: {', '.join(brand_profile.tone_examples)}"
+        user_message += brand_context
     for attempt in range(max_retries):
         raw_response = call_llm(SYSTEM_PROMPT, user_message)
         refined = strip_json_fences(raw_response)
         try:
             parsed = json.loads(refined)
-            if len(parsed) == 5:
+            if isinstance(parsed, list) and len(parsed) == 5 and all(isinstance(s, str) for s in parsed):
                 return parsed
-        except json.JSONDecodeError:
-            print(f"Hook attempt {attempt + 1} failed, retrying...")
+            else:
+                num_items = len(parsed) if isinstance(parsed, list) else type(parsed).__name__
+                print(f"Hook attempt {attempt + 1}: got {num_items} items, expected 5. Retrying...")
+        except json.JSONDecodeError as e:
+            print(f"Hook attempt {attempt + 1} failed: {e}")
+            print(f"RAW RESPONSE: {raw_response}")
     return []

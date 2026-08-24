@@ -6,41 +6,42 @@ from agents.critic import be_critique
 from agents.examples import get_examples
 from agents.research import research_agent
 from agents.orchestrator import classify_topic
+from agents.profile_extractor import BrandProfile
 
-def main(topic):
+def main(topic, brand_profile: BrandProfile = None):
     print("Classifying topic...")
     classified_topic = classify_topic(topic)
     if classified_topic is None:
         print("Failed to classify topic")
         return
     print("Researching...")
-    research = research_agent(classified_topic)
+    research = research_agent(topic)
     if len(research) == 0:
         print("Failed to research")
         return
     print("Fetching suitable examples...")
-    examples = get_examples(classified_topic, research)
+    examples = get_examples(topic, research)
     if len(examples) == 0:
         print("Failed to fetch examples")
         return
     print("Flagging mistakes...")
-    critic = be_critique(classified_topic, research, examples)
+    critic = be_critique(topic, research, examples)
     if len(critic) == 0:
         print("Failed to flag mistakes")
         return
     print("Creating a brief...")
-    brief = create_brief(classified_topic, research, examples, critic)
+    brief = create_brief(topic, research, examples, critic)
     if brief is None:
         print("Failed to create brief")
         return
     print("Generating 5 Hooks...")
-    hooks = generate_hooks(brief)
+    hooks = generate_hooks(brief, brand_profile)
     if len(hooks) < 3:
         print("Failed to generate enough hooks")
         return
     print(hooks)
     print("Generating 2 drafts...")
-    drafts = generate_drafts(hooks, brief)
+    drafts = generate_drafts(hooks, brief, brand_profile)
     if len(drafts) == 0:
         print("Failed to generate drafts")
         return
