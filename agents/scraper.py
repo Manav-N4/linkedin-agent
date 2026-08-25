@@ -1,7 +1,7 @@
 from playwright.sync_api import sync_playwright
 import time
 
-def scrape_with_headless(url: str, timeout: int = 10000) -> str:
+def scrape_with_headless(url: str, timeout: int = 30000) -> str:
     """
     Scrape a website using headless Chrome browser.
     Waits for JavaScript to render before extracting text.
