@@ -102,3 +102,6 @@ def root(request:GenerateRequest):
     print(scoring)
     print("Feel free to suggest any changes!")
     return GenerateResponse(hooks=hooks, drafts=drafts, scores=scoring)
+    if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=10000)
