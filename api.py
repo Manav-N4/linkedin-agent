@@ -8,17 +8,58 @@ from agents.research import research_agent
 from agents.orchestrator import classify_topic
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from agents.profile_extractor import extract_profile, BrandProfile
+from agents.scraper import scrape_with_headless
 
 class GenerateRequest(BaseModel):
     topic: str
+    website_url: str = None
+class ExtractProfileRequest(BaseModel):
+    website_url: str
 class GenerateResponse(BaseModel):
     hooks: list[str]
     drafts: list[str]
     scores: dict
 
 app = FastAPI()
+
+from fastapi.responses import JSONResponse
+import traceback
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Unhandled Exception: {str(exc)}"}
+    )
+
+@app.post("/extract-profile")
+def extract_profile_endpoint(request: ExtractProfileRequest):
+    if not request.website_url:
+        raise HTTPException(status_code=400, detail="website_url is required")
+    
+    print(f"Scraping website: {request.website_url}")
+    try:
+        website_content = scrape_with_headless(request.website_url)
+        if not website_content:
+            raise HTTPException(status_code=400, detail="Failed to scrape website")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to scrape website: {str(e)}")
+    
+    print("Extracting brand profile...")
+    try:
+        profile = extract_profile(website_content, brand_name=request.website_url)
+        return {
+            "brand_name": profile.brand_name,
+            "voice": profile.voice,
+            "key_pillars": profile.key_pillars,
+            "tone_examples": profile.tone_examples
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Profile extraction failed: {str(e)}")
+
 @app.post("/generate", response_model=GenerateResponse)
-async def root(request:GenerateRequest):
+def root(request:GenerateRequest):
     print("Classifying topic...")
     classified_topic = classify_topic(request.topic)
     if classified_topic is None:
@@ -41,12 +82,12 @@ async def root(request:GenerateRequest):
     if brief is None:
         raise HTTPException(status_code=500, detail="Failed to generate brief")
     print("Generating 5 Hooks...")
-    hooks = generate_hooks(brief)
+    hooks = generate_hooks(brief, brand_profile=None)
     if len(hooks) < 3:
         raise HTTPException(status_code=500, detail="Failed to generate hooks")
     print(hooks)
     print("Generating 2 drafts...")
-    drafts = generate_drafts(hooks, brief)
+    drafts = generate_drafts(hooks, brief, brand_profile=None)
     if len(drafts) == 0:
         raise HTTPException(status_code=500, detail="Failed to generate drafts")
     print(drafts)
