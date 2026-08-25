@@ -13,7 +13,7 @@ from agents.scraper import scrape_with_headless
 
 class GenerateRequest(BaseModel):
     topic: str
-    website_url: str = None
+    profile: dict
 class ExtractProfileRequest(BaseModel):
     website_url: str
 class GenerateResponse(BaseModel):
@@ -60,6 +60,10 @@ def extract_profile_endpoint(request: ExtractProfileRequest):
 
 @app.post("/generate", response_model=GenerateResponse)
 def root(request:GenerateRequest):
+    try:
+        profile = BrandProfile(**request.profile)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid profile: {str(e)}")
     print("Classifying topic...")
     classified_topic = classify_topic(request.topic)
     if classified_topic is None:
@@ -82,12 +86,12 @@ def root(request:GenerateRequest):
     if brief is None:
         raise HTTPException(status_code=500, detail="Failed to generate brief")
     print("Generating 5 Hooks...")
-    hooks = generate_hooks(brief, brand_profile=None)
+    hooks = generate_hooks(brief, brand_profile=profile)
     if len(hooks) < 3:
         raise HTTPException(status_code=500, detail="Failed to generate hooks")
     print(hooks)
     print("Generating 2 drafts...")
-    drafts = generate_drafts(hooks, brief, brand_profile=None)
+    drafts = generate_drafts(hooks, brief, brand_profile=profile)
     if len(drafts) == 0:
         raise HTTPException(status_code=500, detail="Failed to generate drafts")
     print(drafts)
