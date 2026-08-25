@@ -56,8 +56,12 @@ def get_examples(topic: str, research_chunks: list[str], max_retries = 3) -> lis
         refined = strip_json_fences(raw_response)
         try:
             parsed = json.loads(refined)
-            if len(parsed) > 0:
+            if isinstance(parsed, list) and len(parsed) == 3 and all(isinstance(s, str) for s in parsed):
                 return parsed
-        except json.JSONDecodeError:
-            print(f"Example attempt {attempt + 1} failed, retrying...")
+            else:
+                num_items = len(parsed) if isinstance(parsed, list) else type(parsed).__name__
+                print(f"Example attempt {attempt + 1}: got {num_items} items, expected 3. Retrying...")
+        except json.JSONDecodeError as e:
+            print(f"Example attempt {attempt + 1} failed: {e}")
+            print(f"RAW RESPONSE: {raw_response}")
     return []

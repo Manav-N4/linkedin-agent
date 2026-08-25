@@ -55,6 +55,8 @@ def scrape_page(url:str) -> str:
 def query_research(topic: str, n_results: int = 3) -> list[str]:
     # step 1: encode the topic into a query vector
     query = model.encode([topic]).tolist() 
+    if collection.count() == 0:
+       return [] 
     # step 2: make sure n_results doesn't exceed collection.count()
     if n_results > collection.count():
         n_results = min(n_results, collection.count()) 

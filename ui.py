@@ -2,17 +2,23 @@ import requests
 import streamlit as st 
 if "result" not in st.session_state:
     st.session_state.result = None
+st.set_page_config(layout="wide")
 st.title("LinkedIn Multi-Agent AI System")
 st.text("Let's start drafting your LinkedIn post!")
 st.text_input("Enter the topic", key="topic")
 topic = st.session_state.topic
 if st.button("Generate"):
-    response = requests.post("http://127.0.0.1:8000/generate", json={"topic": topic})
-    data = response.json()
-    if response.status_code == 200:
-        st.session_state.result = data
-    else:
-        st.error(f"Generation failed: {data.get('detail', 'Unknown error')}")
+    with st.spinner("Running agents... this takes about 60 seconds"):
+        response = requests.post("http://127.0.0.1:8000/generate", json={"topic": topic})
+        try:
+            data = response.json()
+            if response.status_code == 200:
+                st.session_state.result = data
+            else:
+                st.error(f"Generation failed: {data.get('detail', 'Unknown error')}")
+        except requests.exceptions.JSONDecodeError:
+            st.error(f"Server returned an unexpected response (Status {response.status_code}).")
+            st.error(response.text)
 if st.session_state.result:
     result = st.session_state.result
     

@@ -50,8 +50,12 @@ def be_critique(topic:str, research_chunks: list[str], example: list[str], max_r
         refined = strip_json_fences(raw_response)
         try:
             parsed = json.loads(refined)
-            if len(parsed) > 0:
+            if isinstance(parsed, list) and 2 <= len(parsed) <= 5 and all(isinstance(s, str) for s in parsed):
                 return parsed
-        except json.JSONDecodeError:
-            print(f"Critic attempt {attempt + 1} failed, retrying...")
+            else:
+                num_items = len(parsed) if isinstance(parsed, list) else type(parsed).__name__
+                print(f"Critic attempt {attempt + 1}: got {num_items} items, expected 2-5. Retrying...")
+        except json.JSONDecodeError as e:
+            print(f"Critic attempt {attempt + 1} failed: {e}")
+            print(f"RAW RESPONSE: {raw_response}")
     return []

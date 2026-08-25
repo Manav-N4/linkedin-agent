@@ -21,6 +21,7 @@ One example (few-shot): {"domain":"experience_based","content_type":"story","ang
 
 def strip_json_fences(raw:str) -> str:
     raw = raw.strip()
+    raw = re.sub(r'<think>.*?</think>', '', raw, flags=re.DOTALL).strip()
     if raw.startswith("```json"):
         raw = raw.removeprefix("```json").strip()
     elif raw.startswith("```"):

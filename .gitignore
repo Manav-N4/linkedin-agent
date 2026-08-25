@@ -1,3 +1,6 @@
 venv/
 .env
-data/chroma
+data/chroma__pycache__/
+*.pyc
+.DS_Store
+test_*.py
