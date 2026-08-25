@@ -1,7 +1,7 @@
 import requests
 import streamlit as st 
 import json
-
+ 
 if "result" not in st.session_state:
     st.session_state.result = None
 if "profile" not in st.session_state:
@@ -10,10 +10,8 @@ if "profile" not in st.session_state:
 st.set_page_config(layout="wide")
 st.title("LinkedIn Multi-Agent AI System")
 
-# Create tabs
 tab1, tab2 = st.tabs(["Brand Profile", "Generate Content"])
 
-# TAB 1: Brand Profile Extraction
 with tab1:
     st.subheader("Extract Your Brand Profile")
     st.text("Paste your company website URL to extract brand voice, pillars, and tone")
@@ -40,7 +38,6 @@ with tab1:
                 except Exception as e:
                     st.error(f"Error: {str(e)}")
     
-    # Display extracted profile
     if st.session_state.profile:
         profile = st.session_state.profile
         st.markdown("---")
@@ -52,7 +49,6 @@ with tab1:
         for example in profile['tone_examples']:
             st.markdown(f"- *{example}*")
         
-        # Download button
         st.download_button(
             label="Download Profile as JSON",
             data=json.dumps(profile, indent=2),
@@ -60,7 +56,6 @@ with tab1:
             mime="application/json"
         )
 
-# TAB 2: Generate Content
 with tab2:
     st.subheader("Generate Branded LinkedIn Content")
     
@@ -93,17 +88,14 @@ with tab2:
                         st.error(response.text)
                     except Exception as e:
                         st.error(f"Error: {str(e)}")
-    
-    # Display results
+
     if st.session_state.result:
         result = st.session_state.result
-        
-        # hooks
+
         st.subheader("5 Hooks")
         for i, hook in enumerate(result["hooks"]):
             st.markdown(f"**{i+1}.** {hook}")
-        
-        # drafts
+
         st.subheader("Drafts")
         col_a, col_b = st.columns(2)
         with col_a:
@@ -112,10 +104,9 @@ with tab2:
         with col_b:
             st.markdown("**Draft B**")
             st.write(result["drafts"][1])
-        
-        # scores
+
         st.subheader("Critic Scores")
         scores = result["scores"]
         st.markdown(f"**Recommended:** {scores['comparison']['better_draft']}")
         st.markdown(f"**Why:** {scores['comparison']['reason']}")
-        st.markdown(f"**Suggested use:** {scores['comparison']['suggested_use']}")
+        st.markdown(f"**Suggested use:** {scores['comparison']['suggested_use']}")# deployed
