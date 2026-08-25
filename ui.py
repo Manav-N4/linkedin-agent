@@ -27,7 +27,7 @@ with tab1:
             with st.spinner("Scraping website and extracting profile..."):
                 try:
                     response = requests.post(
-                        "http://127.0.0.1:8000/extract-profile",
+                        "https://saloon-frosted-twins.ngrok-free.dev/extract-profile",
                         json={"website_url": website_url},
                         timeout=60
                     )
@@ -78,7 +78,7 @@ with tab2:
                 with st.spinner("Running agents... this takes about 60 seconds"):
                     try:
                         response = requests.post(
-                            "http://127.0.0.1:8000/generate",
+                            "https://saloon-frosted-twins.ngrok-free.dev/generate",
                             json={"topic": topic, "profile": st.session_state.profile},
                             timeout=120
                         )
