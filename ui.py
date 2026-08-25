@@ -110,3 +110,4 @@ with tab2:
         st.markdown(f"**Recommended:** {scores['comparison']['better_draft']}")
         st.markdown(f"**Why:** {scores['comparison']['reason']}")
         st.markdown(f"**Suggested use:** {scores['comparison']['suggested_use']}")# deployed
+# deployed
