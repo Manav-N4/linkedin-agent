@@ -75,7 +75,7 @@ with tab2:
                         response = requests.post(
                             "https://saloon-frosted-twins.ngrok-free.dev/generate",
                             json={"topic": topic, "profile": st.session_state.profile},
-                            timeout=120
+                            timeout=300
                         )
                         data = response.json()
                         if response.status_code == 200:
